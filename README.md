@@ -37,3 +37,39 @@ The activation function determines whether the neuron produces an output or what
 Neural networks are organized by layers: Input, output, and inner layers. When training the neural network, it compares the output node result with the expected result and then applies backpropagation to correct the weights of every node and bias.
 
 Tensorflow playground: `https://playground.tensorflow.org/`
+
+
+# Concepts
+
+### Operations API
+Mathematical operations in data. Low level. For creating machine learning models. Not easy, as it is the lowest level.
+Provides optimizations thrugh GPU and webGL
+
+### Layers API
+To define complex models easily
+
+TensorflowJS docs
+`https://js.tensorflow.org/api/latest/`
+
+### Tensors
+
+In simple terms, tensors are a data structure. A generalization of vectors and matrices to potential higher dimensions, in JS terms *a tensor is a nested array*.
+
+- Create a tensor: General function to create tensors. 
+`tf.tensor([1,2,3,4], [2,2])` => In this case the values are expressed as an arrayan the chape [2,2] (2x2 grid) is specified.
+
+Takes three parameters values(required), shape and dtype. The shape is derived from the values unless you specify it. dtype refers to the type of data.
+
+- Create a scalar tensor (Single value)
+`tf.scalar(1.234)`
+
+- Create a 1 dimensional tensor
+`tf.tensor1d([2,3,4])`
+
+- Create a 2 dimensional tensor => Pass a nested array
+`tf.tensor2d([[1,2,3,4], [2,3,4]])`
+
+#### Definition
+A tensor is a data structure which is a list of values with a data type (float, int, string)
+A tensor has **dimensions**. For example 0d 1 - 1d [1,2,3] (an array / vector)- 2d [[1,2], [3,4,5]] (grid)  - 3d [[[1,2], [5,6]], [[3,4], [4,5]]] (cube)
+A tenspor has a shape: rows, columns
