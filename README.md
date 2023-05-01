@@ -56,7 +56,7 @@ TensorflowJS docs
 In simple terms, tensors are a data structure. A generalization of vectors and matrices to potential higher dimensions, in JS terms *a tensor is a nested array*.
 
 - Create a tensor: General function to create tensors. 
-`tf.tensor([1,2,3,4], [2,2])` => In this case the values are expressed as an arrayan the chape [2,2] (2x2 grid) is specified.
+`tf.tensor([1,2,3,4], [2,2])` => In this case the values are expressed as an array and the shape [2,2] (2x2 grid) is specified.
 
 Takes three parameters values(required), shape and dtype. The shape is derived from the values unless you specify it. dtype refers to the type of data.
 
@@ -73,3 +73,40 @@ Takes three parameters values(required), shape and dtype. The shape is derived f
 A tensor is a data structure which is a list of values with a data type (float, int, string)
 A tensor has **dimensions**. For example 0d 1 - 1d [1,2,3] (an array / vector)- 2d [[1,2], [3,4,5]] (grid)  - 3d [[[1,2], [5,6]], [[3,4], [4,5]]] (cube)
 A tenspor has a shape: rows, columns
+
+##### Operations
+
+- Tensors are immutable
+
+- tf.add(a, b)
+    Adds two tensors. If one is scalar, it will 'broadcast' the value. For example:
+    ```
+    const a = tf.scalar(5)
+    const b = tf.tensor1d([1,2,3,4])
+
+    a.add(b).print() // [6,7,8,9]
+
+    // Different shape broadcast
+    const a = tf.tensor1d([1,5]);
+    const b = tf.tensor2d([[10, 20], [30, 40]]);
+
+    tf.add(a, b) // [[11, 25], [31, 45]]
+    ```
+
+- tf.addStrict(a, b)
+    Asserts both tensors have the same shape
+
+##### Why using operations?
+- For preparing data, like normalizing data (Range from 0 to 1)
+- Build low-level models
+
+#### Memory management
+Tensors we use in TF are stored in WebGL.
+In JS there's garbage colleciton. When using WebGL there's no garbage collection.
+
+How to remove memory?
+
+- tf.memory() -> Information about memory
+- tf.dispose() -> Clean up a specific tensor
+- tf.tidy() -> Wrapper function that will automatically tidy any tensors inside its scope after execution.
+- tf.keep() -> Inform backend that it should keep a specific tensor in memory when inside a `tify` wrapper function.
