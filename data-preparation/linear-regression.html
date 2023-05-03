@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>TensorFlow.js Lab 1</title>
+
+    <!-- Load TensorFlow.js from a script tag -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <h1>TensorFlow.js example</h1>
+    <h2>Open the console to see the results.</h2>
+    <script>
+        const ex = async () => {
+            const houseSalesDataset = tf.data.csv('http://127.0.0.1:8080/kc_house_data.csv')
+            const firstTen = houseSalesDataset.take(10)
+            const dataAsArray = await  firstTen.toArray()
+            console.log(dataAsArray)
+        }
+        ex();
+    </script>
+  </body>
+</html>
