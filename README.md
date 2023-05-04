@@ -1,6 +1,6 @@
 # Machine Learning with Tensorflow JS
 
-## Concepts
+## II Concepts
 - Machine learning is a subcategory of artificial intelligence.
 - It performs tasks without specific programmed rules, meaning behavior is based on data instead of rules.
 - Most machine learning tasks involve predictions.
@@ -110,3 +110,24 @@ How to remove memory?
 - tf.dispose() -> Clean up a specific tensor
 - tf.tidy() -> Wrapper function that will automatically tidy any tensors inside its scope after execution.
 - tf.keep() -> Inform backend that it should keep a specific tensor in memory when inside a `tify` wrapper function.
+
+
+## III Data preparation
+
+### Linear regression
+Plot a line on a dataset that has a certain correlation between two variables.
+Steps
+1. Prepare data
+2. Create model => Line for he correlation
+3. Train the model (Test the line against the data)
+4. Test the model
+5. Make predictions
+
+#### 1. Data preparation
+- Import data from csv
+- Visualize data
+- Normalize data
+
+`kaggle.com` => public datasets to practice machine learning
+
+To parse the CSV file, we have to run a local server for the html, becuse the browser doesn't have access to the file system. We will do that with the `http-server` npm package.
