@@ -6,17 +6,72 @@
 
     <!-- Load TensorFlow.js from a script tag -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
   </head>
   <body>
     <h1>TensorFlow.js example</h1>
     <h2>Open the console to see the results.</h2>
     <script>
-        const ex = async () => {
-            const houseSalesDataset = tf.data.csv('http://127.0.0.1:8080/kc_house_data.csv')
-            const firstTen = houseSalesDataset.take(10)
-            const dataAsArray = await  firstTen.toArray()
-            console.log(dataAsArray)
-        }
+      async function plot(pointsArray, featureName) {
+        tfvis.render.scatterplot(
+          {name: `${featureName} vs House price`}, // Title
+          {values: [pointsArray], series: ["original"]}, // Data sets and label
+          {
+            xLabel: featureName,
+            yLabel: "Price"
+          } // axis labels
+        ) 
+      }
+
+      function normalize(tensor) {
+        // find max and min
+        const min = tensor.min();
+        const max = tensor.max();
+
+        const normalizedTensor = tensor.sub(min).div(max.sub(min))
+        return {tensor: normalizedTensor, min, max};
+      }
+
+      function denormalize(tensor, min, max) {
+        return tensor.mul(max.sub(min)).add(min);
+      }
+
+      const ex = async () => {
+          const houseSalesDataset = tf.data.csv('http://127.0.0.1:8080/kc_house_data.csv')
+          const firstTen = houseSalesDataset.take(10)
+          const dataAsArray = await  firstTen.toArray()
+          console.log(dataAsArray)
+
+          const points = houseSalesDataset.map(record => ({
+            x: record.sqft_living,
+            y: record.price,
+          }))
+          // Note: Avoid using toArray method in production as it loads the whole data set
+          plot(await points.toArray(), "Square Feet")
+
+          // Features (ins)
+          const featureValues = await points.map(p => p.x).toArray();
+          // Data structure doesn't make sense for one feature, but it's extensible to multiple features.
+          const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]); // First dimension: datapoints, second dimension: features
+
+          // Labels (outs)
+          const labelValues = await points.map(p => p.y).toArray();
+          const labelTensors = tf.tensor2d(labelValues, [labelValues.length, 1])
+
+          const normalizedFeature = normalize(featureTensor);
+          const normalizedLabel = normalize(labelTensors);
+
+          // console.log({normalizedFeatureTensor, normalizedLabelTensor})
+          normalizedFeature.tensor.print()
+          normalizedLabel.tensor.print()
+
+          const denorm = denormalize(normalizedFeature.tensor, normalizedFeature.min, normalizedFeature.max);
+          denorm.print() // Same as featureTensor
+
+          // TODO: Figure out how to plot normalized values
+          
+          // plot(await denorm.toArray(), "Normalized Square Feet")
+      }
         ex();
     </script>
   </body>

@@ -131,3 +131,18 @@ Steps
 `kaggle.com` => public datasets to practice machine learning
 
 To parse the CSV file, we have to run a local server for the html, becuse the browser doesn't have access to the file system. We will do that with the `http-server` npm package.
+
+#### 2. Data visualization
+tfjs-vis is a data visualizing data made for tensorflow js. Anythin run with the tfjs-vis library will appear on a right-hand visor on the browser.
+
+#### 3. Data normalization
+The `layers` api uses values from 0-1 , so we need to normalize our data before training, specially for more complex models.
+Im machine leargning jargon, normalization is also called `Feature scaling`. We will use the min-max normalization, which is a formular that assigns
+1 to the max value and 0 to the minimun of a dataset.
+
+Formula:
+**normlizedValue = (normalizedValue - dataMin) / (dataMax - dataMin)**
+
+This formula divides the value minus the minimun value in the set byt the range in which the values exist (dataMax-dataMin)
+
+To make sense of the predction data, we will need a denormalization process as well.
