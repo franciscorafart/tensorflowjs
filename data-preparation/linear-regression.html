@@ -37,40 +37,57 @@
       }
 
       const ex = async () => {
+          // 1. Parse data and extract variables for linear regression
           const houseSalesDataset = tf.data.csv('http://127.0.0.1:8080/kc_house_data.csv')
-          const firstTen = houseSalesDataset.take(10)
-          const dataAsArray = await  firstTen.toArray()
-          console.log(dataAsArray)
 
-          const points = houseSalesDataset.map(record => ({
+          const pointsDataset = houseSalesDataset.map(record => ({
             x: record.sqft_living,
             y: record.price,
           }))
-          // Note: Avoid using toArray method in production as it loads the whole data set
-          plot(await points.toArray(), "Square Feet")
 
+          // Note: Avoid using toArray method in production as it loads the whole data set
+          const points = await pointsDataset.toArray()
+
+          // 2. Ensure even length for later 50% split of data
+          const newLength = points.length % 2 === 0 ? points.length : points.length - 1;
+          points.splice(newLength)
+
+          // 3. Shuffle data in-place for future training/testing data separation
+          tf.util.shuffle(points);
+
+          // 4. plot data
+          plot(points, "Square Feet")
+
+          // 5. Create tensors ata structures
           // Features (ins)
-          const featureValues = await points.map(p => p.x).toArray();
+          const featureValues = points.map(p => p.x);
           // Data structure doesn't make sense for one feature, but it's extensible to multiple features.
           const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]); // First dimension: datapoints, second dimension: features
 
           // Labels (outs)
-          const labelValues = await points.map(p => p.y).toArray();
+          const labelValues = points.map(p => p.y);
           const labelTensors = tf.tensor2d(labelValues, [labelValues.length, 1])
 
+          // 6. Normalize data (0 to 1)
           const normalizedFeature = normalize(featureTensor);
           const normalizedLabel = normalize(labelTensors);
 
           // console.log({normalizedFeatureTensor, normalizedLabelTensor})
-          normalizedFeature.tensor.print()
-          normalizedLabel.tensor.print()
+          // normalizedFeature.tensor.print()
+          // normalizedLabel.tensor.print()
 
-          const denorm = denormalize(normalizedFeature.tensor, normalizedFeature.min, normalizedFeature.max);
-          denorm.print() // Same as featureTensor
+          // const denorm = denormalize(normalizedFeature.tensor, normalizedFeature.min, normalizedFeature.max);
+          // denorm.print() // Same as featureTensor
 
           // TODO: Figure out how to plot normalized values
-          
           // plot(await denorm.toArray(), "Normalized Square Feet")
+
+          normalizedFeature.tensor.print();
+
+          // 7. Separate data into training and testing sets
+          const [featureTrain, featureTest] = tf.split(normalizedFeature.tensor, 2); // Split data 50% (2). 
+          // You can split on a different ratio by passing an array [7,1] instead of int 
+          const [labelTrain, labelTest] = tf.split(normalizedLabel.tensor, 2);
       }
         ex();
     </script>
