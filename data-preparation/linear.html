@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <title>TensorFlow.js Lab 2</title>
+    
+        <!-- Load TensorFlow.js from a script tag -->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
+      </head>
+
+      <body>
+        <h1>TensorFlow.js example</h1>
+        <h2>Open the console to see the results.</h2>
+
+        <script>
+            async function plot(pointsArray, featureName) {
+              tfvis.render.scatterplot(
+                {name: `${featureName} vs House price`}, // Title
+                {values: [pointsArray], series: ["original"]}, // Data sets and label
+                {
+                  xLabel: featureName,
+                  yLabel: "Price"
+                } // axis labels
+              ) 
+            }
+
+            function normalize(tensor){
+              const min = tensor.min();
+              const max = tensor.max();
+
+              const normalizedTensor = tensor.sub(min).div(max.sub(min))
+              return { tensor: normalizedTensor, min, max }
+            }
+            
+            const execute = async () => {
+                await tf.ready();
+
+                const houseSalesDataset = tf.data.csv('http://127.0.0.1:8080/kc_house_data.csv')
+                console.log('columns', houseSalesDataset)
+                const pointsDataset = houseSalesDataset.map(record => ({
+                  x: record.sqft_living,
+                  y: record.price,
+                }))
+
+                // Note: Avoid using toArray method in production as it loads the whole data set
+                const points = await pointsDataset.toArray();
+                
+                const newLength = points.length % 2 === 0 ? points.length : points.length - 1;
+                points.splice(newLength)
+
+                tf.util.shuffle(points);
+
+                // TODO: Look into using .batch instead of toArray(); 
+                plot(points, 'Square Feet');
+
+                const featureValues = points.map(p => p.x);
+                const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]);
+
+                const labelValues = points.map(p => p.y);
+                const labelTensor = tf.tensor2d(labelValues, [labelValues.length, 1]);
+
+                const normalizedFeature = normalize(featureTensor);
+                const normalizedLabel = normalize(labelTensor);
+
+                const Number80pct = Math.floor((newLength / 10)*8);
+
+                const [trainingFeatures, testingFeatures] = tf.split(normalizedFeature.tensor, [Number80pct, newLength - Number80pct])
+                const [trainingLabel, testingLabel] = tf.split(normalizedLabel.tensor, [Number80pct, newLength - Number80pct])
+                console.log('memory in tidy', tf.memory())
+              }
+              
+              tf.tidy(async () => {
+                await execute();
+              })
+              console.log('memory out tidy', tf.memory())
+        </script>
+      </body>
+</html>
